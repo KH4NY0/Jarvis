@@ -2,8 +2,8 @@ from http import server
 import subprocess
 import wolframalpha
 import pyttsx3
-import tkinter
 import json
+import pyaudio
 import random
 import operator
 import speech_recognition as sr
@@ -11,6 +11,7 @@ import datetime
 import wikipedia
 import webbrowser
 import os
+from dotenv import load_dotenv
 import winshell
 import pyjokes
 import feedparser
@@ -26,9 +27,12 @@ from bs4 import BeautifulSoup
 import win32com.client as wincl
 from urllib.request import urlopen
 
+load_dotenv()
+
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
+
 
 # Sub functions
 
@@ -80,7 +84,7 @@ def username():
     uname = takeCommand()
     speak("Welcome ")
     speak(uname)
-    columns = shutil.get_terminal_size().columns
+    columns = shutil.get_terminal_size(fallback=(80, 20)).columns
 
     print("####################".center(columns))
     print("Welcome Mr.", uname.center(columns))
@@ -89,18 +93,29 @@ def username():
     speak("How can i help you, Sir")
 
 def sendEmail(to, content):
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
 
-    # Enable low security in gmail
-    server.login('your email id', 'your email password')
-    server.sendmail('your email id', to, content)
-    server.close()
+        email = os.getenv('EMAIL')
+        password = os.getenv('EMAIL_PASSWORD')
+        
+        if not email or not password:
+             print("Email or password is missing.")
+             return
+
+        server.login(email, password)
+        server.sendmail(email, to, content)
+        server.close()
+
+    except Exception as e:
+        print(e)
+        speak("I am not able to send this email")
 
 # Main function
 if __name__ == '__main__':
-    clear = lambda: os.system('cls')
+    clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
 
     # This function will clean any command before execution of the file
     clear()
@@ -172,11 +187,12 @@ if __name__ == '__main__':
             speak("I was made by Lukhanyo Radebe")
 
         elif 'joke' in query:
-            speak(pyjokes.get__joke())
+             speak(pyjokes.get_joke())
+
 
         elif "calculate" in query:
 
-            app_id = "Wolframaplha api id"
+            app_id = os.getenv("WOLFRAMALPHA_API_KEY")
             client = wolframalpha.Client(app_id)
             indx = query.lower().split().index('calculate')
             query = query.split()[indx + 1:]
@@ -194,8 +210,8 @@ if __name__ == '__main__':
 
         elif 'news' in query:
             try: 
-                # The reason why i didn't save my api key in a different file is because i don't see any security concerns ( you can let me know if im correct or not at 0695526061 )
-                jsonObj = urlopen('''https://newsapi.org/v2/top-headlines?country=za&apiKey=9f8e9c43b0294ac5988cad11083572e7''')
+                news_api = os.getenv("NEWS_API_KEY")
+                jsonObj = urlopen(news_api)
                 data = json.load(jsonObj)
                 i = 1
 
@@ -218,7 +234,7 @@ if __name__ == '__main__':
 
         elif 'shutdown system' in query:
             speak("Hold on a sec, your system is on its way to shut down")
-            subprocess.call('shutdown / p / f')
+            subprocess.call('shutdown /p /f')
 
         elif 'empty recycle bin' in query:
             winshell.recycle_bin().empty(confirm = False, show_progress = True, sound = True)
@@ -242,10 +258,14 @@ if __name__ == '__main__':
             location = query
             speak("locating...")
             speak(location)
-            webbrowser.open("https://www.google.nl/maps/place" + location)
+            webbrowser.open("https://www.google.nl/maps/place/" + location)
 
         elif "camera" in query or "take a photo" in query:
-            ec.capture(0, "Jarvis camera", "img.jpg")
+            try:
+                ec.capture(0, "Jarvis Camera", "img.jpg")
+            except Exception as e:
+                print("Camera error:", e)
+                speak("Unable to access the camera.")
 
         elif "restart" in query:
             subprocess.call(["shutdown", "/r"])
