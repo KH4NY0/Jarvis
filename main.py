@@ -47,9 +47,12 @@ def wishMe():
     else:
         speak("Good Evening Sir!")
 
-    assname = ("Jarvis 1 point o")
+    assname = "Jarvis"
+    version = "1 point o"
     speak("I am your Assistant")
     speak(assname)
+    speak("Version")
+    speak(version)
 
 
 def takeCommand():
@@ -104,6 +107,9 @@ if __name__ == '__main__':
     wishMe()
     username()
 
+    assname = "Jarvis"
+    version = "1 point o"
+
     while True:
         query = takeCommand().lower()
 
@@ -145,3 +151,45 @@ if __name__ == '__main__':
             except Exception as e:
                 print(e)
                 speak("I am not able to send this email")
+
+        elif 'how are you' in query:
+            speak("I am fine, Thank you")
+            speak("How are you, Sir?")
+
+        elif 'fine' in query or 'good' in query:
+            speak("It's good to know that")
+
+        elif "what's your name?" in query or "What is your name" in query:
+            speak("My creator named")
+            speak(assname)
+            print("My creator named", assname)
+
+        elif 'exit' in query:
+            speak("Thanks for giving me your time")
+            exit()
+
+        elif "who made you" in query or "who created you" in query:
+            speak("I was made by Lukhanyo Radebe")
+
+        elif 'joke' in query:
+            speak(pyjokes.get__joke())
+
+        elif "calculate" in query:
+
+            app_id = "Wolframaplha api id"
+            client = wolframalpha.Client(app_id)
+            indx = query.lower().split().index('calculate')
+            query = query.split()[indx + 1:]
+            res = client.query(' '.join(query))
+            answer = next(res.results).text
+            print("The answer is " + answer)
+            speak("The answer is" + answer)
+
+        elif 'search' in query:
+            query = query.replace("search", "")
+            webbrowser.open(query)
+
+        elif "what is the purpose of your existence" in query:
+            speak("My purpose is to help individuals with mobility or vision impairments may find it challenging to use traditional interfaces and hopefully khanyo adds more functionality to my core so i can be more helpfull")
+
+        
