@@ -86,7 +86,7 @@ def username():
     print("Welcome Mr.", uname.center(columns))
     print("####################".center(columns))
 
-    speak("How can i help you, Sir?")
+    speak("How can i help you, Sir")
 
 def sendEmail(to, content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -154,15 +154,15 @@ if __name__ == '__main__':
 
         elif 'how are you' in query:
             speak("I am fine, Thank you")
-            speak("How are you, Sir?")
+            speak("How are you, Sir")
 
         elif 'fine' in query or 'good' in query:
             speak("It's good to know that")
 
         elif "what's your name?" in query or "What is your name" in query:
-            speak("My creator named")
+            speak("My creator named me")
             speak(assname)
-            print("My creator named", assname)
+            print("My creator named me", assname)
 
         elif 'exit' in query:
             speak("Thanks for giving me your time")
@@ -192,4 +192,64 @@ if __name__ == '__main__':
         elif "what is the purpose of your existence" in query:
             speak("My purpose is to help individuals with mobility or vision impairments may find it challenging to use traditional interfaces and hopefully khanyo adds more functionality to my core so i can be more helpfull")
 
-        
+        elif 'news' in query:
+            try: 
+                # The reason why i didn't save my api key in a different file is because i don't see any security concerns ( you can let me know if im correct or not at 0695526061 )
+                jsonObj = urlopen('''https://newsapi.org/v2/top-headlines?country=za&apiKey=9f8e9c43b0294ac5988cad11083572e7''')
+                data = json.load(jsonObj)
+                i = 1
+
+                speak('here are some top news from the times of south africa')
+                print('''================= TIMES OF SOUTH AFRICA =================''' + '\n')
+
+                for item in data['articles']:
+
+                    print(str(i) + '. ' + item['title'] + '\n')
+                    print(item['description'] + '\n')
+                    speak(str(i) + '. ' + item['title'] + '\n')
+                    i += 1
+
+            except Exception as e:
+                 print(str(e))
+
+        elif 'lock window' in query:
+            speak("locking the device")
+            ctypes.windll.user32.LockWorkStation()
+
+        elif 'shutdown system' in query:
+            speak("Hold on a sec, your system is on its way to shut down")
+            subprocess.call('shutdown / p / f')
+
+        elif 'empty recycle bin' in query:
+            winshell.recycle_bin().empty(confirm = False, show_progress = True, sound = True)
+            speak("Recycle bin has been recycled")
+
+        elif "don't listen" in query or "stop listening" in query:
+            while True:
+                try:
+                    speak("How long should I stop listening, Please provide an integer value.")
+                    a = int(takeCommand())  
+                    time.sleep(a)  
+                    print(a)
+                    break  
+
+                except ValueError:
+                    speak("That was not a valid integer. Please try again.")
+
+
+        elif "where is" in query:
+            query = query.replace("where is", "")
+            location = query
+            speak("locating...")
+            speak(location)
+            webbrowser.open("https://www.google.nl/maps/place" + location)
+
+        elif "camera" in query or "take a photo" in query:
+            ec.capture(0, "Jarvis camera", "img.jpg")
+
+        elif "restart" in query:
+            subprocess.call(["shutdown", "/r"])
+
+        elif "hibernate" in query or "sleep" in query:
+            speak("Hibernating")
+            subprocess.call("Shutdown /h")
