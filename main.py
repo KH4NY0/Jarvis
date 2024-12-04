@@ -30,6 +30,8 @@ engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
+# Sub functions
+
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
@@ -92,3 +94,54 @@ def sendEmail(to, content):
     server.login('your email id', 'your email password')
     server.sendmail('your email id', to, content)
     server.close()
+
+# Main function
+if __name__ == '__main__':
+    clear = lambda: os.system('cls')
+
+    # This function will clean any command before execution of the file
+    clear()
+    wishMe()
+    username()
+
+    while True:
+        query = takeCommand().lower()
+
+        # all the commands said by the user will be stored here in 'query' and will be converted to lower case for easily recognition of the command given
+        if 'wikipedia' in query:
+            speak('Searching Wikipedia...')
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences = 3)
+            speak("According to Wikipedia")
+            print(results)
+            speak(results)
+
+        elif 'open youtube' in query:
+            speak("Opening Youtube...\n")
+            webbrowser.open("youtube.com")
+
+        elif 'open google' in query:
+            speak("Opening Google...\n")
+            webbrowser.open("google.com")
+
+        elif 'open stackoverflow' in query:
+            speak("Opening Stackoverflow, Happy coding!")
+            webbrowser.open("stackoverflow.com")
+
+        elif 'time' in query:
+            strTime = datetime.datetime.now().strftime("% H:% M:% S")
+            speak(f"Sir, the time is {strTime}")
+
+
+        elif 'send email' in query:
+            try:
+                speak("What should i say?")
+                content = takeCommand()
+                speak("To whom should i send it to?")
+                to = input()
+                sendEmail(to, content)
+                speak("Email has been sent!")
+
+            except Exception as e:
+                print(e)
+                speak("I am not able to send this email")
